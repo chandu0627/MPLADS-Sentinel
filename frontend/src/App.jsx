@@ -61,7 +61,7 @@ function App() {
     <div className="app-shell">
       <Sidebar />
       <main className="dashboard-main">
-        <header className="dashboard-header">
+        <header className="dashboard-header" id="dashboard">
           <div>
             <p className="section-kicker">Public fund monitoring</p>
             <h1>MPLADS Sentinel</h1>
@@ -91,7 +91,19 @@ function App() {
         <DataCharts datasets={[allocation, annexure]} loading={loading} />
         <AggregateRecordsTable dataset={allocation} loading={loading} />
         <AggregateRecordsTable dataset={annexure} loading={loading} />
-        <section className="details-section" aria-labelledby="risk-section-title">
+        <section className="details-section" id="projects" aria-labelledby="projects-section-title">
+          <div className="section-heading">
+            <div>
+              <p className="section-kicker">Portfolio register</p>
+              <h2 id="projects-section-title">Projects</h2>
+            </div>
+          </div>
+          <div className="details-state">
+            <strong>Project workspace planned</strong>
+            <span>Project-level records will be added when the project data source is available.</span>
+          </div>
+        </section>
+        <section className="details-section" id="risk-analysis" aria-labelledby="risk-section-title">
           <div className="section-heading">
             <div>
               <p className="section-kicker">Risk intelligence</p>
@@ -99,6 +111,30 @@ function App() {
             </div>
           </div>
           <RiskOverview />
+        </section>
+        <section className="details-section" id="alerts" aria-labelledby="alerts-section-title">
+          <div className="section-heading">
+            <div>
+              <p className="section-kicker">Monitoring workflow</p>
+              <h2 id="alerts-section-title">Alerts</h2>
+            </div>
+          </div>
+          <div className="details-state">
+            <strong>Alert workflow planned</strong>
+            <span>Alerts will be added after review rules and notification workflows are defined.</span>
+          </div>
+        </section>
+        <section className="details-section" id="about" aria-labelledby="about-section-title">
+          <div className="section-heading">
+            <div>
+              <p className="section-kicker">System context</p>
+              <h2 id="about-section-title">About MPLADS Sentinel</h2>
+            </div>
+          </div>
+          <div className="details-state">
+            <strong>Programme monitoring workspace</strong>
+            <span>This dashboard presents official aggregate data and statistical anomaly indicators for further review.</span>
+          </div>
         </section>
       </main>
     </div>

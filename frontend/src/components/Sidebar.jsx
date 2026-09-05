@@ -1,6 +1,26 @@
-const navigationItems = ['Dashboard', 'Projects', 'Risk Analysis', 'Alerts', 'About']
+import { useEffect, useState } from 'react'
+
+const navigationItems = [
+  { label: 'Dashboard', target: 'dashboard' },
+  { label: 'Projects', target: 'projects' },
+  { label: 'Risk Analysis', target: 'risk-analysis' },
+  { label: 'Alerts', target: 'alerts' },
+  { label: 'About', target: 'about' },
+]
+
+function currentTarget() {
+  return window.location.hash.slice(1) || 'dashboard'
+}
 
 function Sidebar() {
+  const [activeTarget, setActiveTarget] = useState(currentTarget)
+
+  useEffect(() => {
+    const updateActiveTarget = () => setActiveTarget(currentTarget())
+    window.addEventListener('hashchange', updateActiveTarget)
+    return () => window.removeEventListener('hashchange', updateActiveTarget)
+  }, [])
+
   return (
     <aside className="sidebar" aria-label="Primary navigation">
       <div className="sidebar-brand">
@@ -12,10 +32,10 @@ function Sidebar() {
       </div>
 
       <nav className="nav-list">
-        {navigationItems.map((item, index) => (
-          <a className={`nav-item ${index === 0 ? 'active' : ''}`} href={`#${item.toLowerCase().replace(' ', '-')}`} key={item}>
+        {navigationItems.map((item) => (
+          <a className={`nav-item ${activeTarget === item.target ? 'active' : ''}`} href={`#${item.target}`} key={item.target}>
             <span className="nav-indicator" aria-hidden="true" />
-            {item}
+            {item.label}
           </a>
         ))}
       </nav>
