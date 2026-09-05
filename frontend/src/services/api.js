@@ -92,6 +92,34 @@ function amountOrNull(value) {
   return Number.isFinite(amount) ? amount : null
 }
 
+function normalizeRiskRecord(record, index) {
+  const source = record && typeof record === 'object' ? record : {}
+  const score = amountOrNull(source.anomaly_score)
+  const level = textOrNull(source.risk_level)?.toUpperCase() || 'NOT_ASSESSED'
+
+  return {
+    serialNumber: textOrNull(source.serial_number),
+    state: textOrNull(source.state),
+    recordType: textOrNull(source.record_type),
+    mpName: textOrNull(source.mp_name),
+    constituency: textOrNull(source.constituency),
+    allocatedAmount: amountOrNull(source.allocated_amount_inr),
+    score,
+    level,
+    explanation: textOrNull(source.explanation),
+    assessmentStatus: textOrNull(source.assessment_status) || 'not_assessed',
+    rowKey: textOrNull(source.serial_number) || `${source.record_type || 'risk'}-row-${index}`,
+  }
+}
+
+function normalizeRiskResponse(datasetName, payload) {
+  if (!Array.isArray(payload)) {
+    throw new Error(`${datasetName} risk response was not a list of records.`)
+  }
+
+  return payload.map(normalizeRiskRecord)
+}
+
 function riskOrNull(project) {
   const risk = project.risk ?? project.risk_level ?? project.riskLevel
 
@@ -191,4 +219,12 @@ export function getAnnexureRecords() {
 
 export function getAnnexureMetadata() {
   return getDatasetMetadata('annexure')
+}
+
+export function getAllocationRisk() {
+  return request('/risk/allocation').then((payload) => normalizeRiskResponse('Allocation', payload))
+}
+
+export function getAnnexureRisk() {
+  return request('/risk/annexure').then((payload) => normalizeRiskResponse('Annexure', payload))
 }
