@@ -18,7 +18,7 @@ function RiskOverview({ riskDetails = {} }) {
         <span className="risk-disclaimer">Not a declaration of fraud</span>
       </div>
 
-      <p className="risk-context">Risk information is an analytical indicator generated from project data.</p>
+      <p className="risk-context">Risk information will be added after the ML analysis work is complete.</p>
 
       {!hasRiskInformation ? (
         <p className="pending-analysis">Pending ML analysis</p>
