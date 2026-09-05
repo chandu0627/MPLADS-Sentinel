@@ -3,3 +3,8 @@
 *.sqlite3
 __pycache__/
 *.pyc
+
+# Frontend
+node_modules/
+.vite/
+dist/

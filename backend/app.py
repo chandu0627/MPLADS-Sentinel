@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from .database.database import initialize_database
+from .routes.datasets import router as datasets_router
 from .routes.projects import router as projects_router
 
 
@@ -13,6 +14,7 @@ app = FastAPI(
 )
 
 app.include_router(projects_router)
+app.include_router(datasets_router)
 
 
 @app.get("/")

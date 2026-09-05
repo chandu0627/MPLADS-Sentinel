@@ -1,0 +1,33 @@
+MPLADS DATA QUALITY SUMMARY
+
+These datasets do not contain individual MPLADS project/work records.
+
+ANNEXURE-I
+- Original rows: 38; cleaned rows: 38.
+- Grain: STATE/YEAR aggregate.
+- Excluded rows: none. Total and Nominated summary records were retained and labeled.
+- Missing values after cleaning: serial_number is missing on the retained Total summary row; all substantive aggregate fields are populated.
+- Exact duplicate rows: none detected.
+- Numeric conversion issues: none; all numeric cells parsed successfully.
+- State normalization: whitespace and non-breaking spaces normalized; state labels otherwise preserved.
+- Suspicious records retained: repeated 2016-17 columns, Nominated row, and Total row.
+- Limitation: duplicate 2016-17 labels are unresolved and no project-level fields exist.
+
+ALLOCATED LIMIT
+- Original rows: 544; cleaned rows: 543.
+- Grain: MP/CONSTITUENCY aggregate.
+- Excluded rows: one Grand Total summary row; it is not an MP record.
+- Missing values after cleaning: one missing allocated_amount_inr remains in the retained MP row with serial_number 108 (Maharashtra, NANDED); no value was invented.
+- Exact duplicate rows: none detected.
+- Numeric conversion issues: 542 retained MP amounts converted successfully after removing commas; one retained source amount is missing and remains missing. The excluded Grand Total was not used.
+- State normalization: whitespace and non-breaking spaces normalized; semantic state-name mapping was not applied.
+- Suspicious records retained: one MP row with a missing source amount (serial_number 108, Maharashtra, NANDED); no value was invented.
+- Limitation: no project-level fields exist and allocated amount is not expenditure or sanctioned amount.
+
+COMBINATION
+- The files were not merged.
+- They have different grains and no safe row-level common key.
+- A state-only join would duplicate state aggregates across MP rows and create misleading data.
+
+ML STATUS
+- No ML features, risk scores, or models were created.
