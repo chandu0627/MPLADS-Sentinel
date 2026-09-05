@@ -5,22 +5,80 @@ async function request(path) {
 
   try {
     response = await fetch(`${API_BASE_URL}${path}`)
-  } catch {
+  } catch (error) {
+    console.error('MPLADS API request failed', { path, error })
     throw new Error(`Unable to reach the backend at ${API_BASE_URL}. Start FastAPI and try again.`)
   }
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('The selected project was not found. It may have been removed or is no longer available.')
-    }
-    throw new Error(`Backend request failed with status ${response.status}.`)
+    console.error('MPLADS API returned an error', { path, status: response.status })
+    throw new Error(`The data service is unavailable right now (status ${response.status}).`)
   }
 
   try {
     return await response.json()
-  } catch {
+  } catch (error) {
+    console.error('MPLADS API returned invalid JSON', { path, error })
     throw new Error('The backend returned an invalid JSON response.')
   }
+}
+
+function datasetError(datasetName, message) {
+  return new Error(`${datasetName} data could not be loaded: ${message}`)
+}
+
+function normalizeColumns(columns, datasetName) {
+  if (!Array.isArray(columns) || columns.some((column) => !column || typeof column !== 'object' || typeof column.name !== 'string' || !column.name.trim())) {
+    throw datasetError(datasetName, 'the response contained invalid column metadata.')
+  }
+
+  return columns.map((column) => ({
+    name: column.name,
+    type: typeof column.type === 'string' ? column.type : 'string',
+  }))
+}
+
+function normalizeDatasetResponse(datasetName, payload, requireRecords = false) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw datasetError(datasetName, 'the response was not a valid dataset object.')
+  }
+
+  const rowCount = Number(payload.row_count)
+  if (!Number.isInteger(rowCount) || rowCount < 0) {
+    throw datasetError(datasetName, 'the response contained an invalid row count.')
+  }
+
+  const columns = normalizeColumns(payload.columns, datasetName)
+  const records = payload.records
+  if (requireRecords && !Array.isArray(records)) {
+    throw datasetError(datasetName, 'the response contained invalid records.')
+  }
+  if (Array.isArray(records) && records.some((record) => !record || typeof record !== 'object' || Array.isArray(record))) {
+    throw datasetError(datasetName, 'the response contained an invalid record.')
+  }
+
+  return {
+    datasetName: typeof payload.dataset_name === 'string' ? payload.dataset_name : datasetName,
+    source: textOrNull(payload.source),
+    reportingPeriod: textOrNull(payload.reporting_period),
+    rowCount,
+    grain: textOrNull(payload.grain),
+    columns,
+    qualityNotes: Array.isArray(payload.quality_notes) ? payload.quality_notes.filter((note) => typeof note === 'string') : [],
+    records: Array.isArray(records) ? records : [],
+  }
+}
+
+function getDatasetSummary(datasetName) {
+  return request(`/datasets/${datasetName}/summary`).then((payload) => normalizeDatasetResponse(datasetName, payload))
+}
+
+function getDatasetRecords(datasetName) {
+  return request(`/datasets/${datasetName}/records`).then((payload) => normalizeDatasetResponse(datasetName, payload, true))
+}
+
+function getDatasetMetadata(datasetName) {
+  return request(`/datasets/${datasetName}/metadata`).then((payload) => normalizeDatasetResponse(datasetName, payload))
 }
 
 function textOrNull(value) {
@@ -109,4 +167,28 @@ export function getProject(projectId) {
 
 export function getApiRoot() {
   return request('/')
+}
+
+export function getAllocationSummary() {
+  return getDatasetSummary('allocation')
+}
+
+export function getAllocationRecords() {
+  return getDatasetRecords('allocation')
+}
+
+export function getAllocationMetadata() {
+  return getDatasetMetadata('allocation')
+}
+
+export function getAnnexureSummary() {
+  return getDatasetSummary('annexure')
+}
+
+export function getAnnexureRecords() {
+  return getDatasetRecords('annexure')
+}
+
+export function getAnnexureMetadata() {
+  return getDatasetMetadata('annexure')
 }
