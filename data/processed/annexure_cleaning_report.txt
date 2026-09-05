@@ -1,0 +1,31 @@
+ANNEXURE-I CLEANING REPORT
+
+Source file: RS-Session-251-AU3002-Annexure-I.csv
+Source SHA-256: 20cc84c2a30a3d419f7a18e32750331f72558f70f81ba035d1e5113dbdae47f7
+Original rows: 38
+Original columns: 10
+Cleaned rows: 38
+Cleaned columns: 11
+
+GRAIN:
+STATE/YEAR aggregate. These datasets do not contain individual MPLADS project/work records.
+
+DECISIONS:
+- Column names were converted to stable ASCII snake_case names for processed use.
+- The repeated 2016-17 headers were retained as separate reported_a and reported_b columns.
+- The repeated 2016-17 columns contain different values; no year was guessed and no column was deleted.
+- Non-breaking spaces and surrounding/repeated whitespace were normalized in text fields.
+- Numeric fields were parsed as numeric values; no numeric values required coercion to missing.
+- Blank rows detected: 0; none were removed because no blank rows were present.
+- Exact duplicate rows detected: 0; none were removed.
+- Total and Nominated rows were retained and labeled in record_type rather than silently deleted.
+- Total is a summary row and Nominated is a non-geographic aggregate row; they must not be treated as states.
+
+STATE RECORDS:
+- state_aggregate rows: 36
+- nominated_summary rows: 1
+- total_summary rows: 1
+
+LIMITATIONS:
+- No project/work ID, district, MP, constituency, work description, sanctioned amount, status, dates, or progress exists.
+- The ambiguous duplicate 2016-17 labels prevent confident year interpretation for those paired columns.
