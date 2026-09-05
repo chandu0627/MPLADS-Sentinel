@@ -1,0 +1,26 @@
+ALLOCATED LIMIT CLEANING REPORT
+
+Source file: Allocated Limit for Honble MPs.csv
+Source SHA-256: db419a582d351bdd54cb3c14310287fbab385907f803f9287fa8875bbd43dcd3
+Original rows: 544
+Original columns: 5
+Cleaned rows: 543
+Cleaned columns: 6
+
+GRAIN:
+MP/CONSTITUENCY aggregate. These datasets do not contain individual MPLADS project/work records.
+
+DECISIONS:
+- Column names were converted to stable ASCII snake_case names for processed use.
+- Non-breaking spaces and surrounding/repeated whitespace were normalized in text fields.
+- State, MP, and constituency spelling was not semantically rewritten; only whitespace formatting was normalized.
+- The allocated amount was converted to numeric after removing thousands separators.
+- One Grand Total summary row was excluded from the MP-grain output; excluded rows: 1.
+- The Grand Total is not an MP/constituency record and its comma-formatted amount was not used as an MP amount.
+- Amount conversion failures among retained MP rows: 1; the missing source amount is retained for serial_number 108 (Maharashtra, NANDED), and no value was invented.
+- Blank rows detected: 0; none were removed because no fully blank rows were present.
+- Exact duplicate rows detected: 0; none were removed.
+
+LIMITATIONS:
+- No project/work ID, district, work description, project category, recommended amount, sanctioned amount, expenditure, dates, status, or progress exists.
+- Allocation is an MP/constituency summary and cannot identify individual MPLADS works or project fraud.
