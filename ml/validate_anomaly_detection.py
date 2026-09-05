@@ -46,6 +46,16 @@ class AllocationAnomalyValidation(unittest.TestCase):
             self.assertIn(result["risk_level"], RISK_LEVELS)
             self.assertTrue(result["explanation"])
 
+        assessed = [result for result in first_run if result["assessment_status"] == "assessed"]
+        lowest = min(assessed, key=lambda result: float(result["allocated_amount_inr"]))
+        highest = max(assessed, key=lambda result: float(result["allocated_amount_inr"]))
+        median_amount = sorted(float(result["allocated_amount_inr"]) for result in assessed)[len(assessed) // 2]
+        typical = min(assessed, key=lambda result: abs(float(result["allocated_amount_inr"]) - median_amount))
+        self.assertEqual(len({lowest["explanation"], typical["explanation"], highest["explanation"]}), 3)
+        self.assertIn("low", lowest["explanation"])
+        self.assertIn("typical", typical["explanation"])
+        self.assertIn("high", highest["explanation"])
+
         missing = next(result for result in first_run if result["assessment_status"] == "not_assessed_missing_value")
         self.assertEqual(missing["anomaly_score"], 0.0)
         self.assertIn("remains unassessed", missing["explanation"])
