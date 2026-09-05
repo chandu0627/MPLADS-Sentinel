@@ -6,6 +6,7 @@ import Alerts from './components/Alerts'
 import DataCharts from './components/DataCharts'
 import ProjectMonitoring from './components/ProjectMonitoring'
 import RiskOverview from './components/RiskOverview'
+import SentinelAssist from './components/SentinelAssist'
 import Sidebar from './components/Sidebar'
 import SummaryCard from './components/SummaryCard'
 
@@ -185,6 +186,7 @@ function App() {
           </div>
         </section>
       </main>
+      <SentinelAssist />
     </div>
   )
 }
