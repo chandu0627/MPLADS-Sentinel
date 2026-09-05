@@ -58,13 +58,18 @@ def _min_max_scale(values: np.ndarray) -> np.ndarray:
     return np.clip((values - minimum) / (maximum - minimum), 0.0, 1.0)
 
 
-def _statistical_scores(amounts: np.ndarray) -> np.ndarray:
-    """Calculate a bounded robust baseline using the median and MAD."""
+def _allocation_robust_statistics(amounts: np.ndarray) -> tuple[float, float]:
     median = float(np.median(amounts))
     mad = float(np.median(np.abs(amounts - median)))
     scale = mad * 1.4826
     if scale == 0:
         scale = float(np.std(amounts)) or 1.0
+    return median, scale
+
+
+def _statistical_scores(amounts: np.ndarray) -> np.ndarray:
+    """Calculate a bounded robust baseline using the median and MAD."""
+    median, scale = _allocation_robust_statistics(amounts)
     robust_z = np.abs((amounts - median) / scale)
     return np.clip(robust_z / 5.0, 0.0, 1.0)
 
@@ -217,12 +222,24 @@ def detect_annexure_anomalies(path: Path) -> list[dict]:
     return [result for result in results if result is not None]
 
 
-def _explanation(risk_level: str) -> str:
-    if risk_level == "HIGH":
-        return "Allocation is unusually high or low compared with other allocations in the available dataset. This is a statistical anomaly indicator, not a fraud finding."
-    if risk_level == "MEDIUM":
-        return "Allocation differs moderately from the available allocation distribution. This is a statistical anomaly indicator, not a fraud finding."
-    return "Allocation falls within the lower anomaly range of the available records. This is a statistical anomaly indicator, not a fraud finding."
+def _allocation_explanation(amount: float, median: float, scale: float) -> str:
+    robust_deviation = (amount - median) / scale
+    absolute_deviation = abs(robust_deviation)
+    amount_text = f"INR {amount:,.2f}"
+    median_text = f"INR {median:,.2f}"
+
+    if absolute_deviation >= 2:
+        position = "unusually high" if robust_deviation > 0 else "unusually low"
+    elif absolute_deviation >= 1:
+        position = "noticeably higher" if robust_deviation > 0 else "noticeably lower"
+    else:
+        position = "relatively typical"
+
+    return (
+        f"Allocation amount {amount_text} is {position} relative to the dataset median of {median_text}; "
+        f"its robust median/MAD deviation is {absolute_deviation:.2f}. "
+        "This is a statistical anomaly indicator, not a fraud finding."
+    )
 
 
 def detect_allocation_anomalies(path: Path) -> list[dict]:
@@ -254,6 +271,7 @@ def detect_allocation_anomalies(path: Path) -> list[dict]:
 
     if valid_amounts:
         amounts = np.asarray(valid_amounts, dtype=float)
+        median, scale = _allocation_robust_statistics(amounts)
         isolation_scores = _isolation_forest_scores(amounts)
         baseline_scores = _statistical_scores(amounts)
         combined_scores = np.clip((0.6 * isolation_scores) + (0.4 * baseline_scores), 0.0, 1.0)
@@ -266,7 +284,7 @@ def detect_allocation_anomalies(path: Path) -> list[dict]:
                 **{column: row.get(column, "") for column in REQUIRED_COLUMNS},
                 "anomaly_score": round(score, 6),
                 "risk_level": risk_level,
-                "explanation": _explanation(risk_level),
+                "explanation": _allocation_explanation(amounts[index], median, scale),
                 "assessment_status": "assessed",
             }
 
